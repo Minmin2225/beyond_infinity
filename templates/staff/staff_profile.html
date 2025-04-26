@@ -1,0 +1,41 @@
+{% extends 'staff/base.html' %}
+
+{% block title %}Staff Profile - Beyond Infinity Events{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/staff_profile.css') }}">
+
+<h1>Staff Profile</h1>
+
+<form id="profile-form" method="POST" action="{{ url_for('update_profile_combined') }}">
+  <fieldset>
+    <legend>Personal Information</legend>
+    <label for="full_name">Full Name:</label>
+    <input type="text" id="full_name" name="full_name" value="{{ user.first_name or '' }} {{user.last_name}}" required>
+
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" value="{{ user.email or '' }}" required>
+
+    <label for="phone">Phone Number:</label>
+    <input type="tel" id="phone" name="phone" value="{{ user.phone or '' }}">
+  </fieldset>
+
+  <fieldset>
+    <legend>Availability</legend>
+    <label for="availability_status">Availability Status:</label>
+    <select id="availability_status" name="availability_status" required>
+      <option value="available" {% if user.availability == 'available' %}selected{% endif %}>Available</option>
+      <option value="busy" {% if user.availability == 'busy' %}selected{% endif %}>Busy</option>
+      <option value="away" {% if user.availability == 'away' %}selected{% endif %}>Away</option>
+    </select>
+  </fieldset>
+
+  <button type="submit" class="btn-submit">Update Profile</button>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Optional: Add client-side validation or interactivity here
+</script>
+{% endblock %}

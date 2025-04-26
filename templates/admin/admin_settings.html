@@ -1,0 +1,177 @@
+<!-- templates/admin_settings.html -->
+{% extends 'admin/base.html' %}
+
+{% block title %}User Management - Beyond Infinity Events{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="/static/css/admin_settings.css">
+
+<body>
+    <div class="container">
+        <h1>Settings</h1>
+
+        <div class="settings-layout">
+            <div class="leftside">
+                <div class="profile-header">
+                    <div class="avatar">
+                        <form id="upload-form" enctype="multipart/form-data">
+                            <label for="logo-upload" style="cursor:pointer;">
+                                <img id="current-logo" src="{{ logo_url }}" alt="" width="100%">
+                            </label>
+                            <input type="file" id="logo-upload" name="logo" style="display: none;" accept="image/*">
+                        </form>
+                    </div>
+                    <div class="company-name">Beyond Infinity Events</div>
+                    <div class="role">Administrator</div>
+                </div>
+
+                <ul class="nav-list">
+                    <li class="nav-items">
+                        <a href="#" class="nav-link active">
+                            <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                            Company Profile
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="rightSide">
+                <h2 class="section-title">Company Profile</h2>
+                <p class="section-subtitle">Update your company information and contact details</p>
+
+                <div class="form-divider"></div>
+
+                <form id="companyProfileForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="companyName" class="form-label">Company Name</label>
+                            <input type="text" id="companyName" class="form-input" value="Beyond Infinity Events">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="contactName" class="form-label">Contact Name</label>
+                            <input type="text" id="contactName" class="form-input" value="Clement">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="email" class="form-label">Email Address</label>
+                            <input type="email" id="email" class="form-input" value="contact@beyondinfinity.com">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="phone" class="form-label">Phone Number</label>
+                            <input type="tel" id="phone" class="form-input" value="(+63) 09123456789">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="streetAddress" class="form-label">Street Address</label>
+                            <input type="text" id="streetAddress" class="form-input"
+                                value="Laguna, Rizal, Cavite, Batangas, Quezon and Manila">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="city" class="form-label">City</label>
+                            <input type="text" id="city" class="form-input" value="Famy">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="state" class="form-label">State</label>
+                            <input type="text" id="state" class="form-input" value="Laguna">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="zipCode" class="form-label">Zip Code</label>
+                            <input type="text" id="zipCode" class="form-input" value="4021">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="taxId" class="form-label">Tax ID</label>
+                            <input type="text" id="taxId" class="form-input" value="12-3456789">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="website" class="form-label">Website</label>
+                            <input type="url" id="website" class="form-input" value="www.beyondinfinity.com">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="save-button">Save Profile</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('logo-upload').addEventListener('change', function () {
+            var formData = new FormData(document.getElementById('upload-form'));
+
+            fetch('/upload_logo', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update the logo immediately
+                        document.getElementById('current-logo').src = data.new_logo_url + '?t=' + new Date().getTime();
+                        alert('Logo updated successfully!');
+                    } else {
+                        alert('Failed to update logo.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An unexpected error occurred during upload.');
+                });
+
+        });
+        document.getElementById('companyProfileForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const payload = {
+                companyName: document.getElementById('companyName').value,
+                contactName: document.getElementById('contactName').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                streetAddress: document.getElementById('streetAddress').value,
+                city: document.getElementById('city').value,
+                state: document.getElementById('state').value,
+                zipCode: document.getElementById('zipCode').value,
+                taxId: document.getElementById('taxId').value,
+                website: document.getElementById('website').value,
+            };
+
+            fetch('/save_profile', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Profile updated successfully!');
+                    } else {
+                        alert('Failed to update profile.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        });
+    </script>
+</body>
+{% endblock %}

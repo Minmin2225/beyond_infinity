@@ -1,0 +1,110 @@
+<!-- templates/dashboard.html -->
+{% extends 'admin/base.html' %}
+
+{% block title %}Dashboard - Beyond Infinity Events{% endblock %}
+
+{% block content %}
+<h1>Admin Dashboard</h1>
+
+<div class="stats-container">
+    <div class="stat-card">
+        <div class="stat-icon blue">
+            <i class="fas fa-calendar"></i>
+        </div>
+        <div class="stat-info">
+            <h3>Upcoming Events</h3>
+            <h2>{{ upcoming_events }}</h2>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon green">
+            <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-info">
+            <h3>Total Clients</h3>
+            <h2>{{ total_clients }}</h2>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon purple">
+            <i class="fas fa-user-tie"></i>
+        </div>
+        <div class="stat-info">
+            <h3>Staff Members</h3>
+            <h2>{{ staff_members }}</h2>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon orange">
+            <i class="fas fa-dollar-sign"></i>
+        </div>
+        <div class="stat-info">
+            <h3>Monthly Revenue</h3>
+            <h2>₱{{ monthly_revenue }}</h2>
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-layout">
+    <div class="bookings-section">
+        <h2>Recent Bookings</h2>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Client</th>
+                    <th>Event Type</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking in recent_bookings %}
+                <tr>
+                    <td>{{ booking.email }}</td>
+                    <td>{{ booking.event_type }}</td>
+                    <td>{{ booking.created_at[:10] }}</td>
+                    <td>
+                        <span class="status-badge 
+                            {% if booking.status == 'Confirmed' %}confirmed
+                            {% elif booking.status == 'Pending' %}pending
+                            {% elif booking.status == 'Completed' %}completed
+                            {% endif %}">
+                            {{ booking.status }}
+                        </span>
+                    </td>
+                    <td><a href="/events_management" class="view-link">View</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="availability-section">
+        <h2>Staff Availability (Today)</h2>
+        <div class="staff-list">
+            {% for staff in staff_availability %}
+            <div class="staff-item">
+                <div class="staff-avatar">{{ staff.first_name[0] }}{{ staff.last_name[0] }} </div>
+                <div class="staff-info">
+                    <h3>{{ staff.first_name }} {{ staff.last_name }} </h3>
+                    <p>{{ staff.schedule }}</p>
+                </div>
+                <span class="staff-status {{ staff.availability.lower() }}">{{ staff.availability }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<div class="calendar-section">
+    <h2>Event Calendar</h2>
+    <div id="calendar"></div>
+</div>
+<script type="text/javascript">
+    window.calendarEvents = {{ calendar_events | tojson | safe }};
+</script>
+{% endblock %}

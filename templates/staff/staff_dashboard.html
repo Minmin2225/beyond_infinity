@@ -1,0 +1,270 @@
+<!-- templates/dashboard.html -->
+{% extends 'staff/base.html' %}
+
+{% block title %}Staff Portal - Beyond Infinity Events{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="/static/css/staff_dashboard.css">
+
+<body>
+  <div class="main-content">
+    <div class="welcome-card">
+      <div class="avatar">
+        <svg viewBox="0 0 100 100" width="60" height="60">
+          <circle cx="50" cy="35" r="25" fill="#333" />
+          <circle cx="50" cy="100" r="40" fill="#333" />
+        </svg>
+      </div>
+      <div class="user-info">
+        <h1>Welcome back, {{ staff_name }}</h1>
+        <p>Event Coordinator</p>
+      </div>
+      <div class="stats">
+        <div class="stat-item">
+          <i class="fas fa-calendar-alt"></i> {{ assignments|length }} Upcoming Events
+        </div>
+        <div class="stat-item">
+          <i class="fas fa-bell"></i> {{ tasks|selectattr('status', 'ne', 'Completed')|list|length }} Pending Tasks
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Task Completion</div>
+          <div class="card-subtitle">Your progress on current event tasks</div>
+        </div>
+        <div class="completion-percentage">
+          <span id="completion-percentage-text" style="color: #2e7d32; font-weight: 600;">0%</span>
+        </div>
+      </div>
+
+      <div class="progress-bar">
+        <div id="progress-bar" class="progress" style="width: 0%;"></div>
+      </div>
+
+      <p id="task-placeholder" style="font-style: italic; color: #666; margin-bottom: 10px;">Pick from the event</p>
+      <ul class="task-list" style="display:none;">
+        {% for task in tasks %}
+        <li class="task-item {% if task.status|lower == 'completed' %}completed{% endif %}"
+          data-task-id="{{ task.id }}">
+          <div style="display: flex; align-items: flex-start;">
+            <input type="checkbox" class="task-checkbox" {% if task.status|lower=='completed' %}checked{% endif %}>
+            <div class="task-info">
+              <div class="task-title">{{ task.task_title }}</div>
+              <div class="task-project">{{ task.event_type or 'N/A' }} </div>
+              <div class="task-project">{{ task.task_description or 'N/A' }} </div>
+            </div>
+          </div>
+          <div
+            class="task-status {% if task.status|lower == 'completed' %}status-completed{% else %}status-due{% endif %}">
+            {% if task.status|lower == 'completed' %}
+            Completed
+            {% else %}
+            Due {{ task.due_date }}
+            {% endif %}
+          </div>
+        </li>
+        {% else %}
+        <li>No tasks assigned.</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Upcoming Events</div>
+          <div class="card-subtitle">Events where you are scheduled</div>
+        </div>
+      </div>
+
+      <button id="view-all-events-btn" class="event-button"
+        style="margin-bottom: 10px; background-color: #007bff; color: white;">View All Event Details</button>
+      <ul class="event-list">
+        {% if assignments %}
+        {% for assignment in assignments %}
+        <li class="event-item">
+          <div class="event-header">
+            <div class="event-title">{{ assignment.bookings.event_type if assignment.bookings else 'N/A' }}
+              {{assignment.bookings.email}}</div>
+            <div class="event-actions">
+              <button class="event-button">{{ assignment.role }}</button>
+              <button class="event-button view-details-btn" style="background-color: #555;"
+                data-event-type="{{ assignment.bookings.event_type if assignment.bookings else '' }}">View Task</button>
+            </div>
+          </div>
+              <div class="event-details">
+                <div class="event-detail">
+                  <i class="fas fa-calendar-alt"></i> {{ assignment.bookings.event_date if assignment.bookings else 'N/A' }}
+                </div>
+                <div class="event-detail">
+                  <i class="fas fa-clock"></i> {{ assignment.bookings.start_time if assignment.bookings else 'N/A' }} - {{
+                  assignment.bookings.end_time if assignment.bookings else 'N/A' }}
+                </div>
+                <div class="event-detail">
+                  <i class="fas fa-map-marker-alt"></i> {{ assignment.bookings.location if assignment.bookings else 'N/A' }}
+                </div>
+                <div class="event-detail">
+                  <strong>Package:</strong> {{ assignment.bookings.package_name if assignment.bookings and assignment.bookings.package_name else 'N/A' }}
+                </div>
+              </div>
+        </li>
+        {% endfor %}
+        {% else %}
+        <li>No upcoming events assigned.</li>
+        {% endif %}
+      </ul>
+
+      <!-- Modal for all event details -->
+      <div id="all-events-modal" class="modal"
+        style="display:none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5);">
+        <div class="modal-content"
+          style="background-color: #fefefe; margin: 10% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 600px; border-radius: 8px; position: relative;">
+          <span id="close-modal"
+            style="color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
+          <h2>All Upcoming Event Details</h2>
+          <ul style="list-style: none; padding: 0; max-height: 400px; overflow-y: auto;">
+            {% if assignments %}
+            {% for assignment in assignments %}
+            <li style="border-bottom: 1px solid #ddd; padding: 10px 0;">
+              <strong>Event Type:</strong> {{ assignment.bookings.event_type if assignment.bookings else 'N/A' }}<br>
+              <strong>Email:</strong> {{ assignment.bookings.email if assignment.bookings else 'N/A' }}<br>
+              <strong>Event Date:</strong> {{ assignment.bookings.event_date if assignment.bookings else 'N/A' }}<br>
+              <strong>Time:</strong> {{ assignment.bookings.start_time if assignment.bookings else 'N/A' }} - {{
+              assignment.bookings.end_time if assignment.bookings else 'N/A' }}<br>
+              <strong>Location:</strong> {{ assignment.bookings.location if assignment.bookings else 'N/A' }}<br>
+              <strong>Package:</strong> {{ assignment.bookings.package_name if assignment.bookings and assignment.bookings.package_name else 'N/A' }}<br>
+              <strong>Role:</strong> {{ assignment.role }}
+            </li>
+            {% endfor %}
+            {% else %}
+            <li>No upcoming events assigned.</li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Task checkbox functionality
+      const checkboxes = document.querySelectorAll('.task-checkbox:not([disabled])');
+      const completionPercentageText = document.getElementById('completion-percentage-text');
+      const progressBar = document.getElementById('progress-bar');
+      const taskList = document.querySelector('.task-list');
+      const taskPlaceholder = document.getElementById('task-placeholder');
+      const taskItems = document.querySelectorAll('.task-item');
+
+      function updateProgress() {
+        const visibleTasks = Array.from(taskItems).filter(task => task.style.display !== 'none');
+        const totalTasks = visibleTasks.length;
+        const completedTasks = visibleTasks.filter(task => task.classList.contains('completed')).length;
+        const percentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
+        progressBar.style.width = percentage + '%';
+        completionPercentageText.textContent = percentage + '%';
+      }
+
+      checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function () {
+          const taskItem = this.closest('.task-item');
+          const taskId = taskItem.getAttribute('data-task-id');
+          const newStatus = this.checked ? 'Completed' : 'Pending';
+          if (this.checked) {
+            taskItem.classList.add('completed');
+            const statusElement = taskItem.querySelector('.task-status');
+            statusElement.textContent = 'Completed';
+            statusElement.className = 'task-status status-completed';
+          } else {
+            taskItem.classList.remove('completed');
+            const statusElement = taskItem.querySelector('.task-status');
+            statusElement.textContent = 'Due 2023-05-19';
+            statusElement.className = 'task-status status-due';
+          }
+          updateProgress();
+          // Send AJAX request to update task status in backend
+          fetch('/update_task_status', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({ task_id: taskId, status: newStatus })
+          })
+            .then(response => response.json())
+            .then(data => {
+              if (!data.success) {
+                alert('Failed to update task status: ' + data.message);
+              }
+            })
+            .catch(error => {
+              alert('Error updating task status: ' + error);
+            });
+        });
+      });
+
+      // Navigation functionality
+      const navLinks = document.querySelectorAll('.sidebar-menu a');
+      navLinks.forEach(link => {
+        link.addEventListener('click', function (e) {
+          e.preventDefault();
+          navLinks.forEach(l => l.classList.remove('active'));
+          this.classList.add('active');
+        });
+      });
+
+      // Filter tasks by event type on View Details click
+      const viewDetailButtons = document.querySelectorAll('.view-details-btn');
+
+      viewDetailButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          const eventType = button.getAttribute('data-event-type');
+          if (!eventType) {
+            // Show placeholder and hide task list if no event type
+            taskList.style.display = 'none';
+            taskPlaceholder.style.display = '';
+            updateProgress();
+          } else {
+            taskPlaceholder.style.display = 'none';
+            taskList.style.display = '';
+            taskItems.forEach(task => {
+              const taskEventType = task.querySelector('.task-project').textContent.trim();
+              if (taskEventType === eventType) {
+                task.style.display = '';
+              } else {
+                task.style.display = 'none';
+              }
+            });
+            updateProgress();
+          }
+        });
+      });
+
+      // Show modal for all event details on button click
+      const viewAllEventsBtn = document.getElementById('view-all-events-btn');
+      const allEventsModal = document.getElementById('all-events-modal');
+      const closeModalBtn = document.getElementById('close-modal');
+
+      viewAllEventsBtn.addEventListener('click', () => {
+        allEventsModal.style.display = 'block';
+      });
+
+      closeModalBtn.addEventListener('click', () => {
+        allEventsModal.style.display = 'none';
+      });
+
+      // Close modal when clicking outside the modal content
+      window.addEventListener('click', (event) => {
+        if (event.target === allEventsModal) {
+          allEventsModal.style.display = 'none';
+        }
+      });
+
+    });
+  </script>
+</body>
+{% endblock %}

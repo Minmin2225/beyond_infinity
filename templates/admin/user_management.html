@@ -1,0 +1,262 @@
+<!-- templates/user_management.html -->
+{% extends 'admin/base.html' %}
+
+{% block title %}User Management - Beyond Infinity Events{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="/static/css/modal.css">
+
+<div class="page-header">
+    <h1>User Management</h1>
+    <button type="button" class="btn primary" id="openAddUserModal">
+        <i class="fas fa-user-plus"></i>
+        Add User
+    </button>
+    
+</div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+<div class="users-section">
+    <div class="section-header">
+        <h2>Users</h2>
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Search users...">
+        </div>
+    </div>
+
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Created</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.first_name }} {{ user.last_name }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.role }}</td>
+                <td>
+                    <span class="status-badge 
+                        {% if user.status == 'Active' %}confirmed
+                        {% elif user.status == 'Inactive' %}danger
+                        {% elif user.status == 'Pending' %}pending
+                        {% endif %}">
+                        {{ user.status }}
+                    </span>
+                </td>
+                <td>{{ user.created_at[:10] }}</td>
+                <td>
+                    <div class="dropdown">
+                        <button class="action-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><button class="dropdown-item edit-btn" data-user='{{ user | tojson | safe }}'>Edit</button></li>
+                            <li><button class="dropdown-item text-danger delete-btn" data-user='{{ user | tojson | safe }}'>Delete</button></li>
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Add User Modal -->
+
+<div id="addUserModal" class="modal-overlay">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 class="modal-title">Add New User</h2>
+            <button class="modal-close" id="closeModal">×</button>
+        </div>
+
+        <div class="modal-body">
+            <form id="addUserForm" action="{{ url_for('signup') }}" method="POST">
+                <div class="form-group">
+                    <label class="form-label" for="first_name">Full Name</label>
+                    <input type="text" id="full_name" name="full_name" placeholder="Enter full name" required>
+                    <input type="hidden" id="first_name" name="first_name">
+                    <input type="hidden" id="last_name" name="last_name">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="email">Email</label>
+                    <input type="email" id="email" name="email" placeholder="Enter email address" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Create password" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="phone">Phone (Optional)</label>
+                    <input type="tel" id="phone" name="phone" placeholder="Enter phone number">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="role">Role</label>
+                    <div class="select-wrapper">
+                        <select class="form-control" id="role" name="role" required>
+                            <option value="" disabled selected>Select Role</option>
+                            <option value="Admin">Admin</option>
+                            <option value="Staff">Staff</option>
+                            <option value="Client">Client</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-cancel" id="cancelBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit User Modal -->
+<div id="editUserModal" class="modal-overlay" style="display:none;">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 class="modal-title">Edit User</h2>
+            <button class="modal-close" id="closeEditModal">×</button>
+        </div>
+
+        <div class="modal-body">
+            <form id="editUserForm" action="{{ url_for('update_user') }}" method="POST">
+                <input type="hidden" id="edit_user_email" name="email">
+                <div class="form-group">
+                    <label class="form-label" for="edit_full_name">Full Name</label>
+                    <input type="text" id="edit_full_name" name="full_name" placeholder="Enter full name" required>
+                    <input type="hidden" id="edit_first_name" name="first_name">
+                    <input type="hidden" id="edit_last_name" name="last_name">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="edit_phone">Phone (Optional)</label>
+                    <input type="tel" id="edit_phone" name="phone" placeholder="Enter phone number">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="edit_role">Role</label>
+                    <div class="select-wrapper">
+                        <select class="form-control" id="edit_role" name="role" required>
+                            <option value="" disabled>Select Role</option>
+                            <option value="Admin">Admin</option>
+                            <option value="Staff">Staff</option>
+                            <option value="Client">Client</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-cancel" id="cancelEditBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    // Modal functionality for Add User
+    const modal = document.getElementById('addUserModal');
+    const openModalBtn = document.getElementById('openAddUserModal');
+    const closeModalBtn = document.getElementById('closeModal');
+    const cancelBtn = document.getElementById('cancelBtn');
+
+    openModalBtn.addEventListener('click', () => {
+        modal.style.display = 'flex';
+    });
+
+    closeModalBtn.addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
+
+    cancelBtn.addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
+
+    window.addEventListener('click', (event) => {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+
+    // Handle full name splitting into first and last name for Add User
+    document.getElementById('addUserForm').addEventListener('submit', function (e) {
+        const fullNameInput = document.getElementById('full_name');
+        const fullName = fullNameInput.value.trim();
+        const nameParts = fullName.split(' ');
+
+        if (nameParts.length > 0) {
+            document.getElementById('first_name').value = nameParts[0];
+
+            if (nameParts.length > 1) {
+                // Join all remaining parts as last name
+                document.getElementById('last_name').value = nameParts.slice(1).join(' ');
+            }
+        }
+    });
+
+    // Modal functionality for Edit User
+    const editModal = document.getElementById('editUserModal');
+    const closeEditModalBtn = document.getElementById('closeEditModal');
+    const cancelEditBtn = document.getElementById('cancelEditBtn');
+
+    // Close Edit Modal
+    closeEditModalBtn.addEventListener('click', () => {
+        editModal.style.display = 'none';
+    });
+
+    cancelEditBtn.addEventListener('click', () => {
+        editModal.style.display = 'none';
+    });
+
+    window.addEventListener('click', (event) => {
+        if (event.target === editModal) {
+            editModal.style.display = 'none';
+        }
+    });
+
+    // Handle full name splitting into first and last name for Edit User
+    document.getElementById('editUserForm').addEventListener('submit', function (e) {
+        const fullNameInput = document.getElementById('edit_full_name');
+        const fullName = fullNameInput.value.trim();
+        const nameParts = fullName.split(' ');
+
+        if (nameParts.length > 0) {
+            document.getElementById('edit_first_name').value = nameParts[0];
+
+            if (nameParts.length > 1) {
+                document.getElementById('edit_last_name').value = nameParts.slice(1).join(' ');
+            }
+        }
+    });
+
+    // Edit button logic
+    document.querySelectorAll('.edit-btn').forEach(button => {
+        button.addEventListener('click', function () {
+            const user = JSON.parse(this.dataset.user);
+            document.getElementById('edit_user_email').value = user.email;
+            document.getElementById('edit_full_name').value = user.first_name + (user.last_name ? ' ' + user.last_name : '');
+            document.getElementById('edit_phone').value = user.phone || '';
+            document.getElementById('edit_role').value = user.role || '';
+            editModal.style.display = 'flex';
+        });
+    });
+</script>
+{% endblock %}

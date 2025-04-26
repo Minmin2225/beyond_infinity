@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Beyond Infinity - Dashboard</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta name="description" content="User Dashboard" />
+
+    <!-- Favicon -->
+    <link href="static/img/logo.jpg" rel="icon">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&family=Inter:wght@700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Icon Font Stylesheet -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='lib/animate/animate.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='lib/owlcarousel/assets/owl.carousel.min.css') }}">
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/form.css') }}">
+    <!-- Template Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}"> <!-- Added dashboard CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/form.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='scss/bootstrap/scss/forms/_floating-labels.scss') }}">
+</head>
+
+<body>
+    <div class="container-xxl bg-white p-0">
+        <!-- Spinner Start -->
+        <div id="spinner"
+            class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+        </div>
+        <!-- Spinner End -->
+
+
+        <!-- Navbar Start -->
+        <div class="container-fluid nav-bar bg-transparent">
+            <nav class="navbar navbar-expand-lg bg-white navbar-light py-0 px-4">
+                <a href="{{ url_for('index') }}" class="navbar-brand d-flex align-items-center text-center">
+                    <div class="icon p-2 me-2">
+                        <img class="img-fluid" src="/static/img/logo.jpg" alt="Icon" style="width: 30px; height: 30px;">
+                    </div>
+                    <h1 class="m-0 text-primary" style="font-size: medium !important;">Beyond Infinity Events</h1>
+                </a>
+                <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarCollapse">
+                    <div class="navbar-nav ms-auto">
+                        <a href="{{ url_for('index') }}" class="nav-item nav-link ">Home</a>
+
+                        <a href="{{ url_for('about') }}" class="nav-item nav-link">About</a>
+                        <div class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Services</a>
+                            <div class="dropdown-menu rounded-0 m-0">
+                                <a href="{{ url_for('property_list') }}" class="dropdown-item">Property List</a>
+                                <a href="{{ url_for('property_type') }}" class="dropdown-item">Property Type</a>
+                            </div>
+                        </div>
+                        <a href="{{ url_for('contact') }}" class="nav-item nav-link">Contact</a>
+                    </div>
+                    {% if logged_in %}
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-primary px-3 d-none d-lg-flex"> <i
+                            class="fas fa-user user-icon" style="color: rgb(255, 255, 255);"></i> </a>
+                    {% else %}
+                    <a href="{{ url_for('register') }}" class="btn btn-primary px-3 d-none d-lg-flex">Register</a>
+                    {% endif %}
+
+                </div>
+            </nav>
+        </div>
+        <!-- Navbar End -->
+
+        <div class="container-fluid bg-primary mb-5 wow fadeIn" data-wow-delay="0.1s" style="padding: 35px;">
+            <div class="container">
+
+            </div>
+            <!-- Booking History Table -->
+            <div class="container-fluid">
+                <div class="container">
+                    <div class="glass-card p-6 mt-8 animate-slide-in">
+                        <h2 class="text-xl font-semibold mb-4 flex items-center text-dashboard-teal">
+                            <i class="fas fa-history mr-2"></i>
+                            Your Bookings
+                        </h2>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full booking-table">
+                                <thead>
+                                    <tr>
+                                        <th>Event Date</th>
+                                        <th>Event Type</th>
+                                        <th>Service Package</th>
+                                        <th>Location</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for booking in bookings %}
+                                    <tr>
+                                        <td>
+                                            {{ booking.event_date }}<br>
+                                            <small class="text-gray-500">Created: {{ booking.created_at[:10] if
+                                                booking.created_at else 'N/A' }}</small>
+                                        </td>
+                                        <td>{{ booking.event_type }}</td>
+                                        <td>{{ booking.service_package }}</td>
+                                        <td>{{ booking.location }}</td>
+                                        <td>
+                                            <span class="status-badge status-{{ booking.status|lower }}">
+                                                {{ booking.status if booking.status else 'Pending' }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    {% else %}
+                                    <tr>
+                                        <td colspan="5" class="text-center py-4">No bookings found</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% block content %}
+        <div class="min-h-screen bg-dashboard-teal flex flex-col md-flex-row overflow-hidden">
+
+            <!-- Sidebar for mobile - shown at top -->
+            <div class="md-hidden w-full sidebar-glass">
+                <div class="sidebar-container">
+                    <a href="{{ url_for('index') }}" class="back-button">
+                        <i class="fas fa-arrow-left arrow-left"></i>
+                        Back to Home
+                    </a>
+
+                    <div class="flex-col items-center md-items-start w-full">
+                        <div class="avatar-container animate-fade-in">
+                            <i class="fas fa-user user-icon"></i>
+                        </div>
+                        <h2 class="text-2xl font-semibold text-white mb-4 relative">
+                            User Information
+                            <div class="divider mt-2"></div>
+                        </h2>
+
+                        <div class="info-card space-y-4 w-full bg-white bg-opacity-10 p-4 rounded-xl backdrop-blur-sm">
+                            <div class="info-item flex items-center space-x-3">
+                                <i class="fas fa-user icon-white"></i>
+                                <p class="info-text font-medium">
+                                    <span class="text-dashboard-teal mr-2">Name:</span>
+                                    {{ session['first_name'] }} {{ session['last_name'] }}
+                                </p>
+                            </div>
+
+                            <div class="info-item flex items-center space-x-3">
+                                <i class="fas fa-phone icon-white"></i>
+                                <p class="info-text font-medium">
+                                    <span class="text-dashboard-teal mr-2">Phone:</span>
+                                    {{ session['phone'] }}
+                                </p>
+                            </div>
+
+                            <div class="info-item flex items-center space-x-3">
+                                <i class="fas fa-envelope icon-white"></i>
+                                <p class="info-text font-medium">
+                                    <span class="text-dashboard-teal mr-2">Email:</span>
+                                    {{ session['email'] }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-auto mb-8 w-full flex justify-center float-animation">
+                        <div class="logo-container">
+                            <img src="{{ url_for('static', filename='img/logo.jpg') }}" alt="Company logo"
+                                class="logo-image" />
+                        </div>
+                    </div>
+
+                    <div class="w-full text-center text-xs text-white opacity-70 mt-auto">
+                        <a href="https://www.facebook.com/beyondinfiniityevents" target="_blank"
+                            rel="noopener noreferrer" class="hover-opacity-100 transition-opacity">
+                            https://www.facebook.com/beyondinfiniityevents
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar for desktop - shown on left -->
+            <div class="hidden md-block md-w-1-3 lg-w-1-4 sidebar-glass">
+                <div class="sidebar-container">
+                    <div class="flex-col items-center md-items-start w-full">
+                        <div class="avatar-container animate-fade-in">
+                            <i class="fas fa-user user-icon"></i>
+                        </div>
+                        <h2 class="text-2xl font-semibold text-white mb-4 relative">
+                            User Information
+                            <div class="divider mt-2"></div>
+                        </h2>
+
+                        <div class="info-card space-y-4 w-full bg-white bg-opacity-10 p-4 rounded-xl backdrop-blur-sm">
+                            <div class="info-item flex items-center space-x-3">
+                                <i class="fas fa-user icon-white"></i>
+                                <p class="info-text font-medium">
+                                    <span class="text-dashboard-teal mr-2">Name:</span>
+                                    {{ session['first_name'] }} {{ session['last_name'] }}
+                                </p>
+                            </div>
+
+                            <div class="info-item flex items-center space-x-3">
+                                <i class="fas fa-phone icon-white"></i>
+                                <p class="info-text font-medium">
+                                    <span class="text-dashboard-teal mr-2">Phone:</span>
+                                    {{ session['phone'] }}
+                                </p>
+                            </div>
+
+                            <div class="info-item flex items-center space-x-3">
+                                <i class="fas fa-envelope icon-white"></i>
+                                <p class="info-text font-medium">
+                                    <span class="text-dashboard-teal mr-2">Email:</span>
+                                    {{ session['email'] }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-auto mb-8 w-full flex justify-center float-animation">
+                        <div class="logo-container">
+                            <img src="{{ url_for('static', filename='img/logo.jpg') }}" alt="Company logo"
+                                class="logo-image" />
+                        </div>
+                    </div>
+                    <!-- Footer -->
+                    <div class="text-center mt-8">
+                        <a href="{{ url_for('logout') }}" class="sign-out-btn">
+                            Sign Out
+                        </a>
+
+
+                        </p>
+                    </div>
+
+                    <div class="w-full text-center text-xs text-white opacity-70 mt-auto">
+                        <a href="https://www.facebook.com/beyondinfiniityevents" target="_blank"
+                            rel="noopener noreferrer" class="hover-opacity-100 transition-opacity">
+                            https://www.facebook.com/beyondinfiniityevents
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main content area -->
+            <div class="w-full md-w-2-3 lg-w-3-4 p-6 md-p-10 overflow-y-auto">
+                <div class="max-w-3xl mx-auto">
+
+
+                    {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                    <div class="alert alert-info">
+                        {% for message in messages %}
+                        <p>{{ message }}</p>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    {% endwith %}
+                </div>
+
+                <!-- Testimonial Feedback Form -->
+                <div class="glass-card p-6 animate-slide-in">
+                    <h2 class="text-xl font-semibold mb-4 flex items-center text-dashboard-teal">
+                        <i class="fas fa-comments feedback-icon"></i>
+                        Share Your Feedback
+                    </h2>
+
+                    <form action="{{ url_for('submit_testimonial') }}" method="POST" class="space-y-4">
+                        <!-- User Name (Automatically filled if logged in) -->
+                        <div class="form-group">
+                            <input type="text" id="user_name" name="user_name"
+                                value="{{ session['first_name'] + ' ' + session['last_name'] }}" readonly
+                                class="dashboard-input bg-gray-100" required />
+                        </div>
+
+                        <!-- Testimonial Text -->
+                        <div class="form-group">
+                            <textarea id="testimonial_text" name="testimonial_text"
+                                placeholder="Write your feedback here" class="dashboard-input" required></textarea>
+                        </div>
+
+                        <!-- Profession (Optional) -->
+                        <div class="form-group">
+                            <input type="text" id="profession" name="profession"
+                                placeholder="Your Profession (optional)" class="dashboard-input" />
+                        </div>
+
+                        <!-- Rating (1 to 5 Stars) -->
+                        <div class="form-group">
+                            <select class="dashboard-input" id="rating" name="rating" required>
+                                <option value="">Select Rating</option>
+                                <option value="1">1 Star</option>
+                                <option value="2">2 Stars</option>
+                                <option value="3">3 Stars</option>
+                                <option value="4">4 Stars</option>
+                                <option value="5">5 Stars</option>
+                            </select>
+                        </div>
+
+                        <!-- User Email (Auto-filled from session) -->
+                        <div class="form-group">
+                            <input type="email" id="email" name="email" value="{{ session['email'] }}" readonly
+                                class="dashboard-input bg-gray-100" required />
+                        </div>
+
+                        <button type="submit" class="dashboard-btn" style="background-color: #00C8AA; color: white;">
+                            SUBMIT FEEDBACK
+                        </button>
+                    </form>
+                </div>
+
+
+            </div>
+        </div>
+
+        <!-- Testimonial Start -->
+        <div class="container-xxl py-5">
+            <div class="container">
+                <div class="text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 600px;">
+                    <h1 class="mb-3">Our Clients Say!</h1>
+                    <p>Eirmod sed ipsum dolor sit rebum labore magna erat. Tempor ut dolore lorem
+                        kasd vero ipsum sit eirmod sit. Ipsum diam justo sed rebum vero dolor duo.
+                    </p>
+                </div>
+                <div class="owl-carousel testimonial-carousel wow fadeInUp" data-wow-delay="0.1s">
+                    {% if testimonials %}
+                    {% for testimonial in testimonials %}
+                    <div class="testimonial-item bg-light rounded p-3">
+                        <div class="bg-white border rounded p-4">
+                            <p>{{ testimonial.testimonial_text }}</p>
+                            <div class="d-flex align-items-center">
+                                <img class="img-fluid flex-shrink-0 rounded" src="static/img/testimonial-1.jpg"
+                                    style="width: 45px; height: 45px;">
+                                <div class="ps-3">
+                                    <h6 class="fw-bold mb-1">{{ testimonial.user_name }}</h6>
+                                    <small>{{ testimonial.profession }}</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <!-- Fallback if no testimonials are available -->
+                    <div class="testimonial-item bg-light rounded p-3">
+                        <div class="bg-white border rounded p-4">
+                            <p>Tempor stet labore dolor clita stet diam amet ipsum dolor duo ipsum
+                                rebum stet dolor amet diam stet. Est stet ea lorem amet est kasd
+                                kasd erat eos</p>
+                            <div class="d-flex align-items-center">
+                                <img class="img-fluid flex-shrink-0 rounded" src="static/img/testimonial-1.jpg"
+                                    style="width: 45px; height: 45px;">
+                                <div class="ps-3">
+                                    <h6 class="fw-bold mb-1">Client Name</h6>
+                                    <small>Profession</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <!-- Testimonial End -->
+
+        <!-- Footer Start -->
+        <div class="container-fluid bg-dark text-white-50 footer pt-5 mt-5 wow fadeIn" data-wow-delay="0.1s">
+            <div class="container py-5">
+                <div class="row g-5">
+                    <div class="col-lg-3 col-md-6">
+                        <h5 class="text-white mb-4">Get In Touch</h5>
+                        <p class="mb-2"><i class="fa fa-map-marker-alt me-3"></i>Laguna, Rizal, Cavite, Batangas, Quezon
+                            and Manila</p>
+                        <p class="mb-2"><i class="fa fa-phone-alt me-3"></i>+012 345 67890</p>
+                        <p class="mb-2"><i class="fa fa-envelope me-3"></i>info@example.com</p>
+                        <div class="d-flex pt-2">
+                            <a class="btn btn-outline-light btn-social" href=""><i class="fab fa-twitter"></i></a>
+                            <a class="btn btn-outline-light btn-social" href=""><i class="fab fa-facebook-f"></i></a>
+                            <a class="btn btn-outline-light btn-social" href=""><i class="fab fa-youtube"></i></a>
+                            <a class="btn btn-outline-light btn-social" href=""><i class="fab fa-linkedin-in"></i></a>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <h5 class="text-white mb-4">Quick Links</h5>
+                        <a class="btn btn-link text-white-50" href="">About Us</a>
+                        <a class="btn btn-link text-white-50" href="">Contact Us</a>
+                        <a class="btn btn-link text-white-50" href="">Our Services</a>
+                        <a class="btn btn-link text-white-50" href="">Privacy Policy</a>
+                        <a class="btn btn-link text-white-50" href="">Terms & Condition</a>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <h5 class="text-white mb-4">Photo Gallery</h5>
+                        <div class="row g-2 pt-2">
+                            <div class="col-4">
+                                <img class="img-fluid rounded bg-light p-1" src="static/img/property-1.jpg" alt="">
+                            </div>
+                            <div class="col-4">
+                                <img class="img-fluid rounded bg-light p-1" src="static/img/property-2.jpg" alt="">
+                            </div>
+                            <div class="col-4">
+                                <img class="img-fluid rounded bg-light p-1" src="static/img/property-3.jpg" alt="">
+                            </div>
+                            <div class="col-4">
+                                <img class="img-fluid rounded bg-light p-1" src="static/img/property-4.jpg" alt="">
+                            </div>
+                            <div class="col-4">
+                                <img class="img-fluid rounded bg-light p-1" src="static/img/property-5.jpg" alt="">
+                            </div>
+                            <div class="col-4">
+                                <img class="img-fluid rounded bg-light p-1" src="static/img/property-6.jpg" alt="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <h5 class="text-white mb-4">Newsletter</h5>
+                        <p>Dolor amet sit justo amet elitr clita ipsum elitr est.</p>
+                        <div class="position-relative mx-auto" style="max-width: 400px;">
+                            <input class="form-control bg-transparent w-100 py-3 ps-4 pe-5" type="text"
+                                placeholder="Your email">
+                            <button type="button"
+                                class="btn btn-primary py-2 position-absolute top-0 end-0 mt-2 me-2">SignUp</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container">
+                <div class="copyright">
+                    <div class="row">
+                        <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                            &copy; <a class="border-bottom" href="#">Your Site Name</a>, All Right Reserved.
+
+                            <!--/*** This template is free as long as you keep the footer author’s credit link/attribution link/backlink. If you'd like to use the template without the footer author’s credit link/attribution link/backlink, you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". Thank you for your support. ***/-->
+                            Designed By <a class="border-bottom" href="https://htmlcodex.com">HTML Codex</a>
+                        </div>
+                        <div class="col-md-6 text-center text-md-end">
+                            <div class="footer-menu">
+                                <a href="">Home</a>
+                                <a href="">Cookies</a>
+                                <a href="">Help</a>
+                                <a href="">FQAs</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="{{ url_for('static', filename='lib/wow/wow.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='lib/easing/easing.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='lib/waypoints/waypoints.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='lib/owlcarousel/owl.carousel.min.js') }}"></script>
+
+    <!-- Template Javascript -->
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+    <script>
+        // Page fade-in effect
+        document.body.style.opacity = "0";
+
+        // Fade in the entire page
+        setTimeout(() => {
+            document.body.style.opacity = "1";
+            document.body.style.transition = "opacity 0.5s ease-in-out";
+        }, 100);
+    </script>
+    {% endblock %}
+</body>
+
+</html>
