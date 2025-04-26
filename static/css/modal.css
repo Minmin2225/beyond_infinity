@@ -1,0 +1,193 @@
+
+/* ------------------MODAL--------------------- */
+       
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .modal {
+            background-color: white;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 500px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #777;
+        }
+        
+        .modal-body {
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #1a3353;
+            box-shadow: 0 0 0 2px rgba(26, 51, 83, 0.1);
+        }
+        
+        .time-inputs {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .time-input-group {
+            flex: 1;
+        }
+        
+        .date-input-group {
+            position: relative;
+        }
+        
+        .date-input {
+            padding-left: 40px;
+        }
+        
+        .time-input {
+            position: relative;
+        }
+        
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .btn-cancel {
+            background-color: white;
+            border: 1px solid #ddd;
+            color: #555;
+        }
+        
+        .btn-cancel:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .btn-primary {
+            background-color: #1a3353;
+            border: none;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #14293f;
+        }
+        
+.dropdown-menu {
+    position: absolute;
+    z-index: 1000;
+    display: none;
+    min-width: 10rem;
+    padding: .5rem 0;
+    margin: 0;
+    font-size: 1rem;
+    color: #666565;
+    text-align: left;
+    list-style: none;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid rgba(0,0,0,0.15);
+    border-radius: 5px
+}
+
+.dropdown-menu.show{
+    display: block;
+}
+
+
+.dropdown-item {
+    display: block;
+    width: 100%;
+    padding: .25rem 1rem;
+    clear: both;
+    font-weight: 400;
+    color: #212529;
+    text-align: inherit;
+    white-space: nowrap;
+    background-color: transparent;
+    border: 0
+}
+
+.dropdown-item:hover,.dropdown-item:focus {
+    color: #1e2125;
+    background-color: #e9ecef
+}
+
+.dropdown-item.active,.dropdown-item:active {
+    color: #fff;
+    text-decoration: none;
+    background-color: #00B98E
+}
+
+.dropdown-item.disabled,.dropdown-item:disabled {
+    color: #adb5bd;
+    pointer-events: none;
+    background-color: transparent
+}
+
+.text-danger {
+    color: #dc3545 !important;
+}
+
+
+button:not(:disabled),[type="button"]:not(:disabled),[type="reset"]:not(:disabled),[type="submit"]:not(:disabled) {
+    cursor: pointer
+}
