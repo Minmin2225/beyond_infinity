@@ -18,7 +18,7 @@ BUCKET_NAME = "logo"
 def index():
     try:
         company_profile = supabase.table('company_profile').select('*').eq('id', '5854aecf-3be0-42a9-8ada-f8254c193a26').single().execute()
-        response = supabase.table("services").select("*").execute()
+        response = supabase.table("services").select("*").order("package_name").execute()
         testimonials_response = supabase.table("testimonials").select("*").order("created_at", desc=True).limit(5).execute()
         logo_url = None
         if company_profile.data:
@@ -259,16 +259,24 @@ def update_profile_combined():
         full_name = request.form.get('full_name')
         email = request.form.get('email')
         phone = request.form.get('phone')
-        address = request.form.get('address')
         availability = request.form.get('availability_status')
         user_email = session['email']
 
+        # Split full_name into first_name and last_name
+        if full_name:
+            name_parts = full_name.strip().rsplit(' ', 1)
+            first_name = name_parts[0]
+            last_name = name_parts[1] if len(name_parts) > 1 else ''
+        else:
+            first_name = ''
+            last_name = ''
+
         # Update user information in the database
         update_data = {
-            "full_name": full_name,
+            "first_name": first_name,
+            "last_name": last_name,
             "email": email,
             "phone": phone,
-            "address": address,
             "availability": availability
         }
 
@@ -579,12 +587,14 @@ def staff_dashboard():
         flash("User email not found in session.", "danger")
         return redirect(url_for('dashboard'))
     
-    # Fetch staff user info for name display
-    user_response = supabase.table('users').select('first_name, last_name').eq('email', staff_email).single().execute()
+    # Fetch staff user info for name display and availability
+    user_response = supabase.table('users').select('first_name, last_name, availability').eq('email', staff_email).single().execute()
     staff_name = ""
+    availability = None
     if user_response.data:
         first_name = user_response.data.get('first_name', '')
         last_name = user_response.data.get('last_name', '')
+        availability = user_response.data.get('availability', None)
         staff_name = f"{first_name} {last_name}".strip()
     
     # Fetch staff assignments joined with bookings for event details
@@ -621,7 +631,8 @@ def staff_dashboard():
                            assignments=assignments,
                            tasks=tasks,
                            completion_percentage=completion_percentage,
-                           staff_name=staff_name)
+                           staff_name=staff_name,
+                           availability=availability)
 
 # ---------------- Add Property (Placeholder) ----------------
 

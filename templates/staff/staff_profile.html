@@ -24,9 +24,9 @@
     <legend>Availability</legend>
     <label for="availability_status">Availability Status:</label>
     <select id="availability_status" name="availability_status" required>
-      <option value="available" {% if user.availability == 'available' %}selected{% endif %}>Available</option>
-      <option value="busy" {% if user.availability == 'busy' %}selected{% endif %}>Busy</option>
-      <option value="away" {% if user.availability == 'away' %}selected{% endif %}>Away</option>
+      <option value="Available" {% if user.availability == 'Available' %}selected{% endif %}>Available</option>
+      <option value="Busy" {% if user.availability == 'Busy' %}selected{% endif %}>Busy</option>
+      <option value="Away" {% if user.availability == 'Away' %}selected{% endif %}>Away</option>
     </select>
   </fieldset>
 
